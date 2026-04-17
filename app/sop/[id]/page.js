@@ -1,17 +1,18 @@
 'use client'
-import { useState, useEffect, use} from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 
+import { use } from 'react'
+
 export default function SopPage({ params }) {
-  const resolvedParams = use(params)
-  const id = resolvedParams.id
+  const { id } = use(params)
   const [sop, setSop] = useState(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (id) fetchSop()
-  }, [id])
+    fetchSop()
+  }, [])
 
   const fetchSop = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -103,11 +104,17 @@ export default function SopPage({ params }) {
             {copied ? 'Copied!' : 'Copy text'}
           </button>
           <button
-            onClick={downloadTxt}
-            className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
-            Download
-          </button>
+  onClick={() => window.location.href = `/sop/${id}/edit`}
+  className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
+>
+  Edit
+</button>
+<button
+  onClick={downloadTxt}
+  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+>
+  Download
+</button>
         </div>
       </nav>
 
