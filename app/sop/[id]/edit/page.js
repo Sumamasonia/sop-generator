@@ -41,15 +41,34 @@ export default function EditSop({ params }) {
   }
 
   const save = async () => {
-    setSaving(true)
-    await supabase
-      .from('sops')
-      .update({ content, title, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
-  }
+  setSaving(true)
+
+  const currentVersion = sop.version_number || 1
+
+  await supabase.from('sop_versions').insert({
+    sop_id: params.id || id,
+    user_id: user.id,
+    content: sop.content,
+    title: sop.title,
+    version_number: currentVersion,
+    change_note: `Version ${currentVersion}`,
+    created_at: new Date().toISOString()
+  })
+
+  await supabase
+    .from('sops')
+    .update({
+      content,
+      title,
+      updated_at: new Date().toISOString(),
+      version_number: currentVersion + 1
+    })
+    .eq('id', id)
+
+  setSaved(true)
+  setTimeout(() => setSaved(false), 2500)
+  setSaving(false)
+}
 
   const improveWithAI = async () => {
     if (!aiPrompt.trim()) return

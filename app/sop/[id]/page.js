@@ -29,8 +29,30 @@ export default function SopPage({ params }) {
     if (!data) { window.location.href = '/dashboard'; return }
     setSop(data)
     setLoading(false)
+
+    if (data && user) {
+  markAsRead(data.id, user.id)
+}
   }
 
+  const markAsRead = async (sopId, userId) => {
+  const { data: assignments } = await supabase
+    .from('assignments')
+    .select('employee_id')
+    .eq('sop_id', sopId)
+    .eq('user_id', userId)
+
+  if (assignments && assignments.length > 0) {
+    for (const assignment of assignments) {
+      await supabase.from('sop_reads').upsert({
+        sop_id: sopId,
+        employee_id: assignment.employee_id,
+        user_id: userId,
+        read_at: new Date().toISOString()
+      }, { onConflict: 'sop_id,employee_id' })
+    }
+  }
+}
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sop.content)
     setCopied(true)
@@ -232,24 +254,45 @@ const downloadPDF = async () => {
             {copied ? 'Copied!' : 'Copy text'}
           </button>
           <button
-  onClick={() => window.location.href = `/sop/${id}/edit`}
+            onClick={() => window.location.href = `/sop/${id}/edit`}
+            className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
+          >
+          Edit
+          </button>
+          <button
+  onClick={() => window.location.href = `/sop/${id}/versions`}
   className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
 >
-  Edit
+  History
 </button>
+
 <button
-  onClick={downloadTxt}
+  onClick={() => window.location.href = `/sop/${id}/reads`}
   className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
 >
-  Download .txt
+  Read receipts
 </button>
+
 <button
-  onClick={downloadPDF}
-  disabled={pdfLoading}
-  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+  onClick={() => window.location.href = `/sop/${id}/quiz`}
+  className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
 >
-  {pdfLoading ? 'Generating...' : 'Download PDF'}
+  Quiz
 </button>
+
+          <button
+            onClick={downloadTxt}
+            className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
+          >
+          Download .txt
+        </button>
+        <button
+          onClick={downloadPDF}
+          disabled={pdfLoading}
+          className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+        >
+       {pdfLoading ? 'Generating...' : 'Download PDF'}
+       </button>
         </div>
       </nav>
 

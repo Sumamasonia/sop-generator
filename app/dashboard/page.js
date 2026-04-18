@@ -91,30 +91,36 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between">
         <span className="text-lg font-semibold text-gray-900">SOPly</span>
-        <div className="flex items-center gap-6">
-          <button
-  onClick={() => window.location.href = '/templates'}
-  className="text-sm text-gray-500 hover:text-gray-800"
->
-  Templates
-</button>
-<button
-  onClick={() => window.location.href = '/health'}
-  className="text-sm text-gray-500 hover:text-gray-800"
->
-  Health
-</button>
-<button
-  onClick={() => window.location.href = '/chat'}
-  className="text-sm text-indigo-600 font-medium hover:text-indigo-800"
->
-  AI Assistant
-</button>
-          <span className="text-sm text-gray-400">{user?.email}</span>
-          <button onClick={signOut} className="text-sm text-gray-500 hover:text-gray-800">
-            Sign out
-          </button>
-        </div>
+        <div className="flex items-center gap-4">
+  <button
+    onClick={() => window.location.href = '/templates'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Templates
+  </button>
+  <button
+    onClick={() => window.location.href = '/health'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Health
+  </button>
+  <button
+    onClick={() => window.location.href = '/approval'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Approvals
+  </button>
+  <button
+    onClick={() => window.location.href = '/chat'}
+    className="text-sm text-indigo-600 font-medium hover:text-indigo-800"
+  >
+    AI Assistant
+  </button>
+  <span className="text-sm text-gray-400">{user?.email}</span>
+  <button onClick={signOut} className="text-sm text-gray-500 hover:text-gray-800">
+    Sign out
+  </button>
+</div>
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-10">
