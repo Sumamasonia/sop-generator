@@ -5,11 +5,20 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = () => {
-    if (!email || !email.includes('@')) return
-    setSubmitted(true)
-    setEmail('')
-  }
+  const handleSubmit = async () => {
+  if (!email || !email.includes('@')) return
+
+  try {
+    await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    })
+  } catch (e) {}
+
+  setSubmitted(true)
+  setEmail('')
+}
 
   return (
     <main className="min-h-screen bg-white">
@@ -18,12 +27,18 @@ export default function Home() {
       <nav className="flex items-center justify-between px-8 py-4 border-b border-gray-100">
         <span className="text-lg font-semibold text-gray-900">SOPly</span>
         <div className="flex gap-3">
-          <button className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
-            Sign in
-          </button>
-          <button className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-            Get started free
-          </button>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+          Sign in
+        </button>
+        <button
+          onClick={() => window.location.href = '/login'}
+          className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+        >
+           Get started free
+        </button>
         </div>
       </nav>
 
@@ -68,12 +83,16 @@ export default function Home() {
 
       {/* Stats */}
       <section className="flex justify-center gap-6 px-6 pb-16">
-        {[
-          { number: '5 min', label: 'avg time to create SOP' },
-          { number: '10+ hrs', label: 'saved per employee/month' },
-          { number: '0%', label: 'knowledge lost on exit' },
-        ].map(s => (
-          <div key={s.label} className="text-center bg-gray-50 rounded-xl px-8 py-5">
+       {[
+  { number: '5 min', label: 'avg time to create SOP' },
+  { number: '10+ hrs', label: 'saved per employee/month' },
+  { number: '0%', label: 'knowledge lost on exit' },
+].map(s => (
+  <div
+    key={s.label}
+    onClick={() => window.location.href = '/login'}
+    className="text-center bg-gray-50 rounded-xl px-8 py-5 cursor-pointer hover:bg-indigo-50 transition-colors"
+  >
             <div className="text-2xl font-semibold text-gray-900">{s.number}</div>
             <div className="text-xs text-gray-500 mt-1">{s.label}</div>
           </div>
