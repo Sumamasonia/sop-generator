@@ -120,6 +120,31 @@ export default function Dashboard() {
   <button onClick={signOut} className="text-sm text-gray-500 hover:text-gray-800">
     Sign out
   </button>
+  
+  <button
+  onClick={() => window.location.href = '/voice-sop'}
+  className="text-sm text-gray-500 hover:text-gray-800"
+>
+  🎤 Voice
+</button>
+<button
+  onClick={() => window.location.href = '/onboarding'}
+  className="text-sm text-gray-500 hover:text-gray-800"
+>
+  Onboarding
+</button>
+<button
+  onClick={() => window.location.href = '/roles'}
+  className="text-sm text-gray-500 hover:text-gray-800"
+>
+  Roles
+</button>
+<button
+  onClick={() => window.location.href = '/duplicates'}
+  className="text-sm text-gray-500 hover:text-gray-800"
+>
+  Duplicates
+</button>
 </div>
       </nav>
 
