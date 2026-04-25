@@ -34,7 +34,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "SOPly — AI-Powered SOP Management Platform",
     description: "Turn any business process into a documented SOP in 5 minutes.",
-    images: ["/og-image.png"],
+    images: ["/soply_og_image.svg"],
   },
 };
 
