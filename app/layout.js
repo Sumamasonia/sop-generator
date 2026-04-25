@@ -22,7 +22,7 @@ export const metadata = {
     siteName: "SOPly",
     images: [
       {
-        url: "/og-image.png",
+        url: "/soply_og_image.svg",
         width: 1200,
         height: 630,
         alt: "SOPly — AI-Powered SOP Management Platform",
