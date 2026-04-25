@@ -92,30 +92,8 @@ export default function Dashboard() {
       <nav className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between">
         <span className="text-lg font-semibold text-gray-900">SOPly</span>
         <div className="flex items-center gap-4">
-  <button
-    onClick={() => window.location.href = '/templates'}
-    className="text-sm text-gray-500 hover:text-gray-800"
-  >
-    Templates
-  </button>
-  <button
-    onClick={() => window.location.href = '/health'}
-    className="text-sm text-gray-500 hover:text-gray-800"
-  >
-    Health
-  </button>
-  <button
-    onClick={() => window.location.href = '/approval'}
-    className="text-sm text-gray-500 hover:text-gray-800"
-  >
-    Approvals
-  </button>
-  <button
-    onClick={() => window.location.href = '/chat'}
-    className="text-sm text-indigo-600 font-medium hover:text-indigo-800"
-  >
 
-    <button
+          <button
   onClick={() => window.location.href = '/voice-sop'}
   className="text-sm text-gray-500 hover:text-gray-800"
 >
@@ -139,6 +117,29 @@ export default function Dashboard() {
 >
   Duplicates
 </button>
+
+  <button
+    onClick={() => window.location.href = '/templates'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Templates
+  </button>
+  <button
+    onClick={() => window.location.href = '/health'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Health
+  </button>
+  <button
+    onClick={() => window.location.href = '/approval'}
+    className="text-sm text-gray-500 hover:text-gray-800"
+  >
+    Approvals
+  </button>
+  <button
+    onClick={() => window.location.href = '/chat'}
+    className="text-sm text-indigo-600 font-medium hover:text-indigo-800"
+  >
 
     AI Assistant
   </button>
