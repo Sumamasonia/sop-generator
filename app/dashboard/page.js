@@ -114,14 +114,8 @@ export default function Dashboard() {
     onClick={() => window.location.href = '/chat'}
     className="text-sm text-indigo-600 font-medium hover:text-indigo-800"
   >
-    AI Assistant
-  </button>
-  <span className="text-sm text-gray-400">{user?.email}</span>
-  <button onClick={signOut} className="text-sm text-gray-500 hover:text-gray-800">
-    Sign out
-  </button>
-  
-  <button
+
+    <button
   onClick={() => window.location.href = '/voice-sop'}
   className="text-sm text-gray-500 hover:text-gray-800"
 >
@@ -145,6 +139,14 @@ export default function Dashboard() {
 >
   Duplicates
 </button>
+
+    AI Assistant
+  </button>
+  <span className="text-sm text-gray-400">{user?.email}</span>
+  <button onClick={signOut} className="text-sm text-gray-500 hover:text-gray-800">
+    Sign out
+  </button>
+  
 </div>
       </nav>
 
