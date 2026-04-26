@@ -1,3 +1,6 @@
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { createClient } from '@supabase/supabase-js'
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
@@ -8,43 +11,57 @@ export async function OPTIONS() {
     }
   })
 }
-import { GoogleGenerativeAI } from '@google/generative-ai'
-import { createClient } from '@supabase/supabase-js'
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
 
 export async function POST(request) {
   try {
+    // CORS headers
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+
     const authHeader = request.headers.get('Authorization')
     const token = authHeader?.replace('Bearer ', '')
 
+    console.log('Token received:', token ? 'yes' : 'NO TOKEN')
+
     if (!token) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return Response.json({ error: 'No token provided' }, { status: 401, headers: corsHeaders })
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    // Use anon client to verify user token
+    const supabaseAnon = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      { global: { headers: { Authorization: `Bearer ${token}` } } }
+    )
+
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser()
+
+    console.log('User:', user?.email, 'Auth error:', authError?.message)
+
     if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 })
+      return Response.json({ error: 'Invalid token: ' + authError?.message }, { status: 401, headers: corsHeaders })
     }
 
-    const { steps, title } = await request.json()
+    const body = await request.json()
+    const { steps, title } = body
+
+    console.log('Steps received:', steps?.length)
 
     if (!steps || steps.length === 0) {
-      return Response.json({ error: 'No steps provided' }, { status: 400 })
+      return Response.json({ error: 'No steps provided' }, { status: 400, headers: corsHeaders })
     }
 
     const stepsText = steps.map(s =>
       `Step ${s.stepNumber}: ${s.description} (on page: ${s.pageTitle || s.url})`
     ).join('\n')
 
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
 
-    const prompt = `You are an expert business process writer. A user has recorded their browser workflow and you have the captured steps. Convert these into a clean, professional Standard Operating Procedure.
+    const prompt = `You are an expert business process writer. A user has recorded their browser workflow. Convert these captured steps into a clean, professional Standard Operating Procedure.
 
 RECORDED STEPS:
 ${stepsText}
@@ -52,39 +69,48 @@ ${stepsText}
 SOP TITLE: ${title || 'Browser Recorded Process'}
 
 Instructions:
-- Clean up the raw click data into professional, human-readable steps
-- Group related steps together logically
-- Add context and explanation where needed
-- Include screenshots placeholder notes like "[Screenshot: shows X]" where helpful
-- Format as a complete SOP with: Purpose, Scope, Prerequisites, Step-by-step Procedure, Notes
-
-Make it professional and easy to follow for someone doing this task for the first time.`
+- Convert raw click data into professional readable steps
+- Group related steps logically
+- Add context and explanation
+- Format as complete SOP with: Purpose, Scope, Prerequisites, Step-by-step Procedure, Notes
+- Make it easy to follow for someone doing this task first time`
 
     const result = await model.generateContent(prompt)
     const content = result.response.text()
 
-    const { data: sop, error } = await supabase.from('sops').insert({
-      user_id: user.id,
-      title: title || 'Browser Recorded SOP',
-      description: `Automatically recorded from browser — ${steps.length} steps captured`,
-      content,
-      created_at: new Date().toISOString()
-    }).select().single()
+    console.log('AI content generated, length:', content.length)
 
-    if (error) {
-      return Response.json({ error: 'Failed to save SOP' }, { status: 500 })
+    // Use service role for insert
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+
+    const { data: sop, error: insertError } = await supabaseAdmin
+      .from('sops')
+      .insert({
+        user_id: user.id,
+        title: title || 'Browser Recorded SOP',
+        description: `Automatically recorded from browser — ${steps.length} steps captured`,
+        content,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    console.log('SOP saved:', sop?.id, 'Error:', insertError?.message)
+
+    if (insertError) {
+      return Response.json({ error: 'Failed to save: ' + insertError.message }, { status: 500, headers: corsHeaders })
     }
 
-    return Response.json({ sopId: sop.id, title: sop.title }, {
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  }
-})
+    return Response.json({ sopId: sop.id, title: sop.title }, { headers: corsHeaders })
 
   } catch (error) {
     console.error('Capture API error:', error)
-    return Response.json({ error: 'Internal server error' }, { status: 500 })
+    return Response.json(
+      { error: 'Server error: ' + error.message },
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
+    )
   }
 }
