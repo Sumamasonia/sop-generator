@@ -2,25 +2,45 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json()
+    const body = await request.json()
+    const { email, password } = body
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    console.log('Auth attempt for:', email)
 
-    if (error || !data.session) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+    if (!email || !password) {
+      return Response.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    return Response.json({
-      token: data.session.access_token,
-      user: { email: data.user.email, id: data.user.id }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     })
 
+    if (error) {
+      console.log('Auth error:', error.message)
+      return Response.json({ error: error.message }, { status: 401 })
+    }
+
+    if (!data.session) {
+      return Response.json({ error: 'No session created' }, { status: 401 })
+    }
+
+    console.log('Auth success for:', email)
+
+    return Response.json({
+  token: data.session.access_token,
+  user: { email: data.user.email, id: data.user.id }
+}, {
+  headers: { 'Access-Control-Allow-Origin': '*' }
+})
+
   } catch (error) {
-    return Response.json({ error: 'Server error' }, { status: 500 })
+    console.error('Extension auth error:', error)
+    return Response.json({ error: 'Server error: ' + error.message }, { status: 500 })
   }
 }

@@ -1,3 +1,13 @@
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  })
+}
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createClient } from '@supabase/supabase-js'
 
@@ -65,7 +75,13 @@ Make it professional and easy to follow for someone doing this task for the firs
       return Response.json({ error: 'Failed to save SOP' }, { status: 500 })
     }
 
-    return Response.json({ sopId: sop.id, title: sop.title })
+    return Response.json({ sopId: sop.id, title: sop.title }, {
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+})
 
   } catch (error) {
     console.error('Capture API error:', error)
