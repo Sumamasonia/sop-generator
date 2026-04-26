@@ -59,7 +59,7 @@ export async function POST(request) {
     ).join('\n')
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
+   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     const prompt = `You are an expert business process writer. A user has recorded their browser workflow. Convert these captured steps into a clean, professional Standard Operating Procedure.
 
